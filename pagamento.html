@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="geo-blocco.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pagamento — Lunévia</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .payment-page {
+            padding: 80px 0 110px;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 30px;
+        }
+
+        .payment-box {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            padding: 40px;
+        }
+
+        .payment-box h1,
+        .payment-box h2 {
+            font-family: var(--serif);
+            color: var(--green);
+        }
+
+        .payment-box h1 {
+            font-size: 3.5rem;
+            margin: 0 0 30px;
+        }
+
+        .payment-field {
+            margin-bottom: 20px;
+        }
+
+        .payment-field label {
+            display: block;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: 7px;
+        }
+
+        .payment-field input,
+        .payment-field textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--line);
+            background: var(--cream);
+            font: .85rem var(--sans);
+        }
+
+        .payment-field input.error,
+        .payment-field textarea.error {
+            border-color: #A62C32;
+        }
+
+        .field-error {
+            display: none;
+            margin-top: 6px;
+            color: #A62C32;
+            font-size: .7rem;
+            font-weight: 600;
+        }
+
+        .field-error.show {
+            display: block;
+        }
+
+        .payment-field select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--line);
+            background: var(--cream);
+            color: inherit;
+            font: .85rem var(--sans);
+        }
+
+        .payment-field select.error {
+            border-color: #A62C32;
+        }
+
+        .payment-delivery {
+            margin-top: 18px;
+            font-size: .8rem;
+            opacity: .92;
+        }
+
+        .payment-delivery[hidden] {
+            display: none;
+        }
+
+        .payment-next {
+            margin-top: 22px;
+            padding: 20px;
+            border: 1px solid var(--green);
+            background: rgba(23,63,53,.05);
+            font-size: .82rem;
+            line-height: 1.6;
+        }
+
+        .payment-next[hidden] {
+            display: none;
+        }
+
+        .payment-next h3 {
+            margin-bottom: 10px;
+            color: var(--green);
+            font-family: var(--serif);
+            font-size: 1.5rem;
+        }
+
+        .payment-next ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .payment-next li {
+            margin-bottom: 8px;
+        }
+
+        .payment-methods {
+            margin-top: 35px;
+        }
+
+        .payment-methods h2 {
+            margin-bottom: 18px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--line);
+            background: var(--cream);
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s ease, background .2s ease;
+        }
+
+        .payment-method:hover {
+            border-color: var(--green);
+        }
+
+        .payment-method:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 2px;
+        }
+
+        .payment-method.active {
+            border-color: var(--gold);
+            background: rgba(181,139,83,.10);
+        }
+
+        .payment-method strong {
+            display: block;
+            color: var(--green);
+        }
+
+        .payment-method small {
+            display: block;
+            color: var(--muted);
+            font-size: .65rem;
+        }
+
+        .payment-notice {
+            margin-top: 6px;
+            padding: 15px;
+            border: 1px solid #A62C32;
+            color: #A62C32;
+            background: rgba(166,44,50,.06);
+            font-size: .8rem;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .payment-notice[hidden] {
+            display: none;
+        }
+
+        .payment-summary {
+            background: var(--green);
+            color: var(--cream);
+            padding: 35px;
+        }
+
+        .payment-summary h2 {
+            color: var(--cream);
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(247,243,234,.18);
+            font-size: .8rem;
+        }
+
+        .payment-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(247,243,234,.3);
+            font-size: 1.1rem;
+        }
+
+        .payment-button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 16px;
+            border: 0;
+            background: var(--gold);
+            color: var(--green);
+            font: 700 .8rem var(--sans);
+            cursor: pointer;
+        }
+
+        .payment-button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        /* Bouton WhatsApp */
+        .payment-button.whatsapp {
+            background: #25D366;
+            color: #06361C;
+        }
+
+        .payment-button.whatsapp:hover:not(:disabled) {
+            background: #1FBF5C;
+        }
+
+        .payment-button.pulse {
+            animation: payment-pulse .9s ease 2;
+        }
+
+        @keyframes payment-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(37,211,102,.55); }
+            70%  { box-shadow: 0 0 0 14px rgba(37,211,102,0); }
+            100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+        }
+
+        .payment-button.secondary {
+            margin-top: 12px;
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .payment-button.secondary[hidden] {
+            display: none;
+        }
+
+        .payment-message {
+            margin-top: 20px;
+            font-weight: 700;
+        }
+
+        .payment-empty a {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        @media(max-width:720px) {
+
+            .payment-page {
+                padding: 55px 0 80px;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-box {
+                padding: 25px;
+            }
+
+            .payment-box h1 {
+                font-size: 2.8rem;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<a href="#main" class="skip-link">
+    Vai al contenuto
+</a>
+
+
+<header class="site-header">
+
+    <div class="wrap header-inner">
+
+        <a href="index.html" class="logo">
+
+            <span class="logo-mark">
+                L
+            </span>
+
+            <span class="logo-name">
+                Lunévia
+            </span>
+
+            <small>
+                Arte &amp; artigianato
+            </small>
+
+        </a>
+
+
+        <button
+            class="nav-toggle"
+            aria-label="Apri il menu"
+            aria-expanded="false"
+            type="button">
+
+            <span></span>
+
+        </button>
+
+
+        <nav class="main-nav" id="main-nav">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="produits.html">
+                Collezione
+            </a>
+
+            <a href="preferiti.html">
+                Preferiti
+            </a>
+
+            <a href="apropos.html">
+                La nostra storia
+            </a>
+
+            <a href="contact.html">
+                Contatti
+            </a>
+
+            <a class="nav-cta" href="panier.html">
+
+                Carrello
+
+                <span class="cart-count">
+                    0
+                </span>
+
+                →
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main id="main">
+
+<section class="payment-page">
+
+<div class="wrap">
+
+<div class="payment-grid">
+
+
+<!-- FORMULAIRE -->
+
+<div class="payment-box">
+
+<p class="eyebrow">
+    Pagamento
+</p>
+
+<h1>
+    Completa il tuo ordine.
+</h1>
+
+
+<form
+    id="payment-form"
+    novalidate
+>
+
+
+<!-- NOM -->
+
+<div class="payment-field">
+
+<label for="payment-name">
+    Nome completo
+</label>
+
+<input
+    type="text"
+    id="payment-name"
+    name="nome"
+    autocomplete="name"
+    placeholder="Il tuo nome completo"
+    required>
+
+<div
+    id="name-error"
+    class="field-error">
+    Inserisci un nome valido.
+</div>
+
+</div>
+
+
+
+<!-- EMAIL -->
+
+<div class="payment-field">
+
+<label for="payment-email">
+    Email
+</label>
+
+<input
+    type="email"
+    id="payment-email"
+    name="email"
+    autocomplete="email"
+    placeholder="esempio@email.com"
+    required>
+
+<div
+    id="email-error"
+    class="field-error">
+    Inserisci un indirizzo email valido.
+</div>
+
+</div>
+
+
+
+<!-- TELEFONO -->
+
+<div class="payment-field">
+
+<label for="payment-phone">
+    Telefono
+</label>
+
+<input
+    type="tel"
+    id="payment-phone"
+    name="telefono"
+    autocomplete="tel"
+    placeholder="+39 000 000 0000"
+    required>
+
+<div
+    id="phone-error"
+    class="field-error">
+    Inserisci un numero di telefono valido.
+</div>
+
+</div>
+
+
+
+<!-- ADRESSE -->
+
+<div class="payment-field">
+
+<label for="payment-address">
+    Indirizzo di consegna
+</label>
+
+<textarea
+    id="payment-address"
+    name="indirizzo"
+    autocomplete="street-address"
+    placeholder="Via, numero, città, CAP..."
+    required></textarea>
+
+<div
+    id="address-error"
+    class="field-error">
+    Inserisci un indirizzo completo.
+</div>
+
+</div>
+
+
+
+<!-- PAESE DI CONSEGNA -->
+
+<div class="payment-field">
+
+<label for="payment-country">
+    Paese di consegna
+</label>
+
+<select
+    id="payment-country"
+    name="paese"
+    autocomplete="country-name"
+    required>
+
+    <option value="">Seleziona il paese</option>
+
+</select>
+
+<div
+    id="country-error"
+    class="field-error">
+    Seleziona il paese di consegna.
+</div>
+
+</div>
+
+
+
+<!-- MODES DE PAIEMENT -->
+
+<div class="payment-methods">
+
+<h2>
+    Metodo di pagamento
+</h2>
+
+
+<!-- VISA / MASTERCARD -->
+
+<button
+    type="button"
+    class="payment-method"
+    data-method="card"
+    data-label="Visa / Mastercard"
+    aria-pressed="false">
+
+<div>
+
+<strong>
+    💳 Visa / Mastercard
+</strong>
+
+<small>
+    Tocca per maggiori informazioni.
+</small>
+
+</div>
+
+</button>
+
+
+
+<!-- PAYPAL -->
+
+<button
+    type="button"
+    class="payment-method"
+    data-method="paypal"
+    data-label="PayPal"
+    aria-pressed="false">
+
+<div>
+
+<strong>
+    🅿️ PayPal
+</strong>
+
+<small>
+    Tocca per maggiori informazioni.
+</small>
+
+</div>
+
+</button>
+
+
+
+<!-- BONIFICO BANCARIO -->
+
+<button
+    type="button"
+    class="payment-method"
+    data-method="bank"
+    data-label="Bonifico bancario"
+    aria-pressed="false">
+
+<div>
+
+<strong>
+    🏦 Bonifico bancario
+</strong>
+
+<small>
+    Tocca per maggiori informazioni.
+</small>
+
+</div>
+
+</button>
+
+
+<!-- MESSAGGIO DEL METODO SCELTO -->
+
+<div
+    id="method-notice"
+    class="payment-notice"
+    role="status"
+    aria-live="polite"
+    hidden>
+</div>
+
+
+</div>
+
+
+
+<!-- BOUTON WHATSAPP -->
+
+<button
+    type="submit"
+    class="payment-button whatsapp"
+    id="whatsapp-order">
+
+    Ordina su WhatsApp →
+
+</button>
+
+<button
+    type="button"
+    class="payment-button secondary"
+    id="order-sent"
+    hidden>
+
+    Ho inviato l'ordine — svuota il carrello
+
+</button>
+
+
+<p
+    id="payment-message"
+    class="payment-message"
+    role="status"
+    aria-live="polite">
+</p>
+
+<div
+    id="next-steps"
+    class="payment-next"
+    hidden>
+</div>
+
+
+</form>
+
+</div>
+
+
+
+<!-- RESUME PANIER -->
+
+<aside class="payment-summary">
+
+<h2>
+    Il tuo ordine
+</h2>
+
+<div id="payment-items">
+</div>
+
+<div class="payment-total">
+
+<span>
+    Totale
+</span>
+
+<strong id="payment-total">
+    0,00 €
+</strong>
+
+</div>
+
+<p class="payment-delivery" id="payment-delivery" hidden></p>
+
+</aside>
+
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+
+<footer class="site-footer">
+
+<div class="wrap">
+
+<div class="footer-bottom">
+
+<span>
+    © 2026 Lunévia
+</span>
+
+<span>
+    Fatto con cura in Italia
+</span>
+
+</div>
+
+</div>
+
+</footer>
+
+
+
+<script src="catalogo-dati.js"></script>
+<script src="script.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    /* ==========================================================
+       IMPORTANTE — NUMERO WHATSAPP DEL NEGOZIO
+       Inserisci il numero in formato internazionale, senza "+",
+       senza spazi e senza trattini. Esempio: "393331234567"
+       (39 = Italia, poi il numero).
+       Se resta vuoto, WhatsApp si apre ma il cliente deve scegliere
+       a chi inviare il messaggio.
+       ========================================================== */
+    const WHATSAPP_NUMBER = "393501637310";
+
+    /* ==========================================================
+       PAGAMENTO E CONSEGNA — DA PERSONALIZZARE
+       ========================================================== */
+
+    // Dati per il pagamento (numero di conto, IBAN, ecc.). Vengono mostrati al
+    // cliente dopo l'invio dell'ordine. Lascia "" se preferisci inviarli solo
+    // su WhatsApp: il sito dirà che li riceverà in chat.
+    const DATI_PAGAMENTO = "";
+
+    // Tempi di consegna in GIORNI LAVORATIVI per paese.
+    // ATTENZIONE: sono valori di ESEMPIO. Sostituiscili con i tuoi tempi reali.
+    const TEMPI_CONSEGNA = {
+        IT: { nome: "Italia",     min: 3, max: 5 },
+        PT: { nome: "Portogallo", min: 5, max: 8 },
+        DE: { nome: "Germania",   min: 5, max: 8 }
+    };
+
+    // Categorie di prodotti grandi o pesanti (colli voluminosi) e giorni da aggiungere.
+    // Identificatori categoria: arredamento, cucina, informatica, moda, bellezza,
+    // sport, giardino, animali, bambini, auto, ufficio.
+    const CATEGORIE_VOLUMINOSE = ["arredamento", "giardino", "sport"];
+    const GIORNI_EXTRA_VOLUMINOSO = 3;
+
+    // Da quando partono i giorni di consegna (frase mostrata al cliente).
+    const INIZIO_CONSEGNA = "dalla conferma del pagamento";
+
+    // Stessa chiave del carrello usata dalle altre pagine (vedi catalogo-dati.js)
+    const KEY = typeof CART_KEY !== "undefined" ? CART_KEY : "lunévia_cart";
+    const HAS_CATALOG = typeof trovaProdotto === "function";
+
+    const money = new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR"
+    });
+
+    /* ---------- Lettura del carrello ---------- */
+
+    function readCart() {
+        try {
+            const raw = localStorage.getItem(KEY);
+            const data = raw ? JSON.parse(raw) : [];
+            const list = Array.isArray(data)
+                ? data
+                : (data && Array.isArray(data.items) ? data.items : []);
+
+            const merged = [];
+
+            list.forEach(item => {
+                if (!item || typeof item !== "object") return;
+
+                const id = String(item.id || item.productId || item.name || item.nome || "");
+                if (!id) return;
+
+                const product = HAS_CATALOG ? trovaProdotto(id) : null;
+                const quantity = Math.max(1, Math.min(99,
+                    Math.floor(Number(item.quantity || item.quantita) || 1)));
+
+                const line = {
+                    id: id,
+                    name: product ? product.titolo : (item.name || item.nome || "Prodotto"),
+                    price: product ? product.prezzo : (Number(item.price || item.prezzo) || 0),
+                    category: product ? product.categoria : "",
+                    quantity: quantity
+                };
+
+                const existing = merged.find(row => row.id === id);
+                if (existing) {
+                    existing.quantity = Math.min(99, existing.quantity + quantity);
+                } else {
+                    merged.push(line);
+                }
+            });
+
+            return merged;
+        } catch (error) {
+            console.warn("Carrello illeggibile:", error);
+            return [];
+        }
+    }
+
+    function clearCart() {
+        try {
+            localStorage.setItem(KEY, "[]");
+        } catch (error) {
+            console.warn("Impossibile svuotare il carrello:", error);
+        }
+    }
+
+    function updateCartCount() {
+        const count = readCart().reduce((sum, item) => sum + item.quantity, 0);
+
+        document.querySelectorAll(".cart-count").forEach(badge => {
+            badge.textContent = count;
+        });
+    }
+
+    /* ---------- Messaggio WhatsApp ---------- */
+
+    function buildOrderMessage(customer, cart, total, paymentLabel) {
+        const lines = [];
+
+        lines.push("🛍️ *Nuovo ordine — Lunévia*");
+        lines.push("Data: " + new Date().toLocaleDateString("it-IT"));
+        lines.push("");
+        lines.push("*Cliente*");
+        lines.push("Nome: " + customer.name);
+        lines.push("Email: " + customer.email);
+        lines.push("Telefono: " + customer.phone);
+        lines.push("Indirizzo: " + customer.address);
+        lines.push("Paese: " + customer.country);
+        lines.push("");
+        lines.push("*Prodotti*");
+
+        cart.forEach((item, index) => {
+            lines.push(
+                (index + 1) + ". " + item.name + " × " + item.quantity +
+                " — " + money.format(item.price * item.quantity)
+            );
+        });
+
+        lines.push("");
+        lines.push("*Totale: " + money.format(total) + "*");
+        lines.push("Pagamento: " + paymentLabel);
+        lines.push("Consegna stimata: " + (customer.delivery || "da confermare"));
+
+        return lines.join("\n");
+    }
+
+    function buildWhatsAppUrl(message) {
+        const number = WHATSAPP_NUMBER.replace(/\D/g, "");
+        const base = number ? "https://wa.me/" + number : "https://wa.me/";
+
+        return base + "?text=" + encodeURIComponent(message);
+    }
+
+    /* ---------- Stima della consegna ---------- */
+
+    function formatDays(min, max) {
+        const part = min === max
+            ? (min === 1 ? "1 giorno" : min + " giorni")
+            : "da " + min + " a " + max + " giorni";
+
+        return part + " lavorativi";
+    }
+
+    // Stima in base al paese e al tipo di colli nel carrello.
+    function estimateDelivery(code, cart) {
+        const zone = TEMPI_CONSEGNA[code];
+        if (!zone) return null;
+
+        let min = zone.min;
+        let max = zone.max;
+
+        const bulky = cart.some(item => CATEGORIE_VOLUMINOSE.indexOf(item.category) !== -1);
+
+        if (bulky) {
+            min += GIORNI_EXTRA_VOLUMINOSO;
+            max += GIORNI_EXTRA_VOLUMINOSO;
+        }
+
+        return { min: min, max: max, bulky: bulky, text: formatDays(min, max) };
+    }
+
+    /* ---------- Pagina ---------- */
+
+    function init() {
+        const itemsContainer = document.getElementById("payment-items");
+        const totalElement = document.getElementById("payment-total");
+        const form = document.getElementById("payment-form");
+        const orderButton = document.getElementById("whatsapp-order");
+        const sentButton = document.getElementById("order-sent");
+        const message = document.getElementById("payment-message");
+
+        /* ----- Metodi di pagamento: al momento si ordina solo su WhatsApp ----- */
+
+        const METHOD_MESSAGES = {
+            card: "Visa / Mastercard non è disponibile al momento. " +
+                  "Ordina su WhatsApp per convalidare il tuo ordine.",
+            paypal: "PayPal non è disponibile al momento. " +
+                    "Ordina su WhatsApp per convalidare il tuo ordine.",
+            bank: "Il bonifico bancario non è disponibile al momento. " +
+                  "Ordina su WhatsApp per convalidare il tuo ordine."
+        };
+
+        const methodButtons = document.querySelectorAll(".payment-method");
+        const methodNotice = document.getElementById("method-notice");
+        let preferredMethod = "";
+
+        methodButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                preferredMethod = button.dataset.label || "";
+
+                methodButtons.forEach(other => {
+                    other.classList.toggle("active", other === button);
+                    other.setAttribute("aria-pressed", String(other === button));
+                });
+
+                methodNotice.textContent = METHOD_MESSAGES[button.dataset.method] ||
+                    "Questo metodo non è disponibile al momento. Ordina su WhatsApp per convalidare il tuo ordine.";
+                methodNotice.hidden = false;
+
+                // Fa risaltare il pulsante WhatsApp
+                orderButton.classList.remove("pulse");
+                void orderButton.offsetWidth;
+                orderButton.classList.add("pulse");
+            });
+        });
+
+        orderButton.addEventListener("animationend", () => {
+            orderButton.classList.remove("pulse");
+        });
+
+        const cart = readCart();
+        updateCartCount();
+
+        /* ----- Riepilogo ordine ----- */
+
+        let total = 0;
+
+        if (!cart.length) {
+            const empty = document.createElement("p");
+            empty.className = "payment-empty";
+            empty.append("Il carrello è vuoto. ");
+
+            const link = document.createElement("a");
+            link.href = "produits.html";
+            link.textContent = "Vai alla collezione";
+            empty.appendChild(link);
+
+            itemsContainer.appendChild(empty);
+            orderButton.disabled = true;
+            return;
+        }
+
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+
+            const row = document.createElement("div");
+            row.className = "payment-item";
+
+            const label = document.createElement("span");
+            label.textContent = item.name + " × " + item.quantity;
+
+            const amount = document.createElement("strong");
+            amount.textContent = money.format(itemTotal);
+
+            row.append(label, amount);
+            itemsContainer.appendChild(row);
+        });
+
+        totalElement.textContent = money.format(total);
+
+        /* ----- Paese di consegna e consegna stimata ----- */
+
+        const countrySelect = document.getElementById("payment-country");
+        const deliveryLine = document.getElementById("payment-delivery");
+        const nextSteps = document.getElementById("next-steps");
+
+        Object.keys(TEMPI_CONSEGNA).forEach(code => {
+            const option = document.createElement("option");
+            option.value = code;
+            option.textContent = TEMPI_CONSEGNA[code].nome;
+            countrySelect.appendChild(option);
+        });
+
+        function updateDeliveryLine() {
+            const estimate = estimateDelivery(countrySelect.value, readCart());
+
+            if (estimate) {
+                deliveryLine.textContent = "Consegna stimata: " + estimate.text;
+                deliveryLine.hidden = false;
+            } else {
+                deliveryLine.hidden = true;
+            }
+        }
+
+        countrySelect.addEventListener("change", updateDeliveryLine);
+
+        function showNextSteps(estimate) {
+            nextSteps.replaceChildren();
+
+            const title = document.createElement("h3");
+            title.textContent = "Come completare il tuo ordine";
+
+            const list = document.createElement("ol");
+
+            const step1 = document.createElement("li");
+            step1.textContent = "Premi «Invia» nel messaggio WhatsApp appena aperto.";
+
+            const step2 = document.createElement("li");
+            if (DATI_PAGAMENTO) {
+                const data = document.createElement("strong");
+                data.textContent = DATI_PAGAMENTO;
+                step2.append("Effettua il pagamento su: ", data, " (indica il tuo nome e cognome).");
+            } else {
+                step2.textContent = "Ti invieremo su WhatsApp i dati per effettuare il pagamento.";
+            }
+
+            const step3 = document.createElement("li");
+            step3.textContent = "Tempo di consegna stimato: " + estimate.text +
+                " " + INIZIO_CONSEGNA + ".";
+
+            list.append(step1, step2, step3);
+            nextSteps.append(title, list);
+            nextSteps.hidden = false;
+        }
+
+        /* ----- Validazione ----- */
+
+        const fields = [
+            {
+                input: document.getElementById("payment-name"),
+                errorId: "name-error",
+                isValid: value => /^[A-Za-zÀ-ÿ\s'-]{2,}$/.test(value)
+            },
+            {
+                input: document.getElementById("payment-email"),
+                errorId: "email-error",
+                isValid: value => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)
+            },
+            {
+                input: document.getElementById("payment-phone"),
+                errorId: "phone-error",
+                isValid: value => /^[+]?[0-9\s().-]{7,20}$/.test(value)
+            },
+            {
+                input: document.getElementById("payment-address"),
+                errorId: "address-error",
+                isValid: value => value.length >= 8
+            },
+            {
+                input: countrySelect,
+                errorId: "country-error",
+                isValid: value => Boolean(TEMPI_CONSEGNA[value])
+            }
+        ];
+
+        function checkField(field) {
+            const valid = field.isValid(field.input.value.trim());
+            const error = document.getElementById(field.errorId);
+
+            field.input.classList.toggle("error", !valid);
+            error.classList.toggle("show", !valid);
+
+            return valid;
+        }
+
+        function checkAll() {
+            // map() (e non every()) per mostrare gli errori di tutti i campi
+            return fields.map(checkField).every(Boolean);
+        }
+
+        fields.forEach(field => {
+            field.input.addEventListener("blur", () => checkField(field));
+
+            field.input.addEventListener("input", () => {
+                if (field.input.classList.contains("error")) checkField(field);
+            });
+        });
+
+        function showMessage(text, color) {
+            message.textContent = text;
+            message.style.color = color;
+        }
+
+        /* ----- Ordine su WhatsApp ----- */
+
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+
+            if (!checkAll()) {
+                showMessage("Controlla le informazioni inserite.", "#A62C32");
+                return;
+            }
+
+            const currentCart = readCart();
+
+            if (!currentCart.length) {
+                showMessage("Il carrello è vuoto. Aggiungi un prodotto prima di continuare.", "#A62C32");
+                return;
+            }
+
+            const currentTotal = currentCart.reduce(
+                (sum, item) => sum + item.price * item.quantity, 0);
+
+            const estimate = estimateDelivery(countrySelect.value, currentCart);
+
+            const text = buildOrderMessage(
+                {
+                    name: fields[0].input.value.trim(),
+                    email: fields[1].input.value.trim(),
+                    phone: fields[2].input.value.trim(),
+                    address: fields[3].input.value.trim(),
+                    country: TEMPI_CONSEGNA[countrySelect.value].nome,
+                    delivery: estimate.text
+                },
+                currentCart,
+                currentTotal,
+                preferredMethod
+                    ? "da concordare su WhatsApp (preferenza del cliente: " + preferredMethod + ")"
+                    : "da concordare su WhatsApp"
+            );
+
+            const url = buildWhatsAppUrl(text);
+
+            if (!WHATSAPP_NUMBER.replace(/\D/g, "")) {
+                console.warn("WHATSAPP_NUMBER è vuoto: inseriscilo in pagamento.html.");
+            }
+
+            // Se il browser blocca la nuova scheda, apre WhatsApp nella stessa scheda.
+            const opened = window.open(url, "_blank");
+            if (!opened) window.location.href = url;
+
+            showMessage(
+                "WhatsApp si è aperto con il riepilogo del tuo ordine. " +
+                "Premi «Invia» in WhatsApp per completare l'ordine.",
+                "var(--green)"
+            );
+
+            showNextSteps(estimate);
+            sentButton.hidden = false;
+        });
+
+        /* ----- Dopo l'invio: svuota il carrello ----- */
+
+        sentButton.addEventListener("click", () => {
+            clearCart();
+            updateCartCount();
+            form.reset();
+            sentButton.hidden = true;
+            nextSteps.hidden = true;
+            deliveryLine.hidden = true;
+            orderButton.disabled = true;
+
+            itemsContainer.replaceChildren();
+            totalElement.textContent = money.format(0);
+
+            showMessage("✓ Grazie per il tuo ordine! Ti contatteremo presto.", "var(--green)");
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+
+    // script.js può aggiornare il contatore con un'altra chiave: qui resta quello corretto.
+    window.addEventListener("load", updateCartCount);
+})();
+</script>
+
+</body>
+</html>

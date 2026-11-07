@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <script src="geo-blocco.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173F35">
+  <title>Contatti — Lunévia</title>
+  <meta name="description" content="Contatta Lunévia per informazioni, ordini speciali e collaborazioni.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Campi e pulsanti del modulo di contatto (classi "ct-" per non entrare in conflitto con styles.css) */
+    .ct-invalid {
+      border-color: #A62C32 !important;
+    }
+
+    .ct-error {
+      display: none;
+      margin-top: 6px;
+      color: #A62C32;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .ct-error.show {
+      display: block;
+    }
+
+    .ct-hint {
+      margin: 6px 0 14px;
+      color: var(--muted, #777D76);
+      font-size: 12px;
+    }
+
+    .ct-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .ct-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 18px;
+      border: 1px solid transparent;
+      border-radius: 40px;
+      font: 700 13px 'Manrope', sans-serif;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .ct-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(23, 63, 53, .15);
+    }
+
+    .ct-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ct-whatsapp {
+      background: #25D366;
+      color: #06361C;
+    }
+
+    .ct-whatsapp:hover {
+      background: #1FBF5C;
+    }
+
+    .ct-mail {
+      background: var(--green, #173F35);
+      color: #fff;
+    }
+
+    .ct-mail:hover {
+      background: var(--green-light, #285C4D);
+    }
+
+    .ct-note {
+      min-height: 22px;
+      margin-top: 18px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 520px) {
+      .ct-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<a href="#main" class="skip-link">Vai al contenuto</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="logo" aria-label="Lunévia, home">
+      <span class="logo-mark">L</span>
+      <span class="logo-name">Lunévia</span>
+      <small>Maison, stile e innovazione</small>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Apri il menu" type="button"><span></span></button>
+    <nav class="main-nav" id="main-nav">
+      <a href="index.html">Home</a>
+      <a href="produits.html">Collezione</a>
+      <a href="preferiti.html">Preferiti</a>
+      <a href="apropos.html">La nostra storia</a>
+      <a href="contact.html" aria-current="page">Contatti</a>
+      <a class="nav-cta" href="panier.html">Carrello <span class="cart-count" id="cart-count">0</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="page-hero">
+  <div class="wrap">
+    <p class="eyebrow">Parliamo</p>
+    <h1>Hai una domanda?<br><em>Siamo qui.</em></h1>
+    <p>Scrivici per informazioni sulla collezione, ordini speciali o collaborazioni. Scegli tu come preferisci contattarci: su WhatsApp o via email.</p>
+  </div>
+</section>
+
+<section class="contact-section">
+  <div class="wrap contact-layout">
+
+    <form id="contact-form" novalidate>
+      <p class="form-title">Invia un messaggio</p>
+
+      <div class="field">
+        <label for="name">Nome e cognome</label>
+        <input type="text" id="name" name="name" autocomplete="name" required placeholder="Il tuo nome" maxlength="80">
+        <div class="ct-error" id="name-error">Inserisci il tuo nome (almeno 2 caratteri).</div>
+      </div>
+
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" autocomplete="email" required placeholder="nome@email.it" maxlength="120">
+        <div class="ct-error" id="email-error">Inserisci un indirizzo e-mail valido.</div>
+      </div>
+
+      <div class="field">
+        <label for="phone">Telefono</label>
+        <input type="tel" id="phone" name="phone" autocomplete="tel" required placeholder="+39 000 000 0000" maxlength="25">
+        <div class="ct-error" id="phone-error">Inserisci un numero di telefono valido.</div>
+      </div>
+
+      <div class="field">
+        <label for="message">Messaggio</label>
+        <textarea id="message" name="message" required placeholder="Come possiamo aiutarti?" maxlength="1000"></textarea>
+        <div class="ct-error" id="message-error">Scrivi un messaggio di almeno 10 caratteri.</div>
+      </div>
+
+      <p class="ct-hint">Scegli come inviare il tuo messaggio:</p>
+
+      <div class="ct-actions">
+        <button type="button" class="ct-btn ct-whatsapp" id="send-whatsapp">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.9A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/></svg>
+          Invia su WhatsApp
+        </button>
+
+        <button type="button" class="ct-btn ct-mail" id="send-mail">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          Invia per e-mail
+        </button>
+      </div>
+
+      <p class="form-note ct-note" id="form-note" role="status" aria-live="polite"></p>
+    </form>
+
+    <aside class="contact-panel">
+      <p class="eyebrow">Lunévia</p>
+      <h2>Una boutique, non un magazzino.</h2>
+      <p>Per noi il contatto umano fa parte dell'esperienza. Raccontaci cosa stai cercando e faremo del nostro meglio per aiutarti.</p>
+      <div class="contact-points">
+        <div><span>01</span><strong>Ordini speciali</strong><p>Hai bisogno di una selezione particolare? Scrivici.</p></div>
+        <div><span>02</span><strong>Collaborazioni</strong><p>Sei un fornitore o un brand? Parliamone.</p></div>
+        <div><span>03</span><strong>Assistenza</strong><p>Domande su prodotti e disponibilità? Siamo qui.</p></div>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="footer-logo">Lunévia</a>
+        <p>Una selezione di oggetti per la casa,<br>lo stile e la vita quotidiana.</p>
+      </div>
+      <div>
+        <h4>Esplora</h4>
+        <a href="produits.html">Collezione</a>
+        <a href="apropos.html">La nostra storia</a>
+        <a href="contact.html">Contatti</a>
+      </div>
+      <div>
+        <h4>Servizio clienti</h4>
+        <a href="contact.html">Domande e assistenza</a>
+        <a href="contact.html">Informazioni sugli ordini</a>
+        <a href="contact.html">Collaborazioni</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Lunévia</span>
+      <span>Maison, stile e innovazione</span>
+    </div>
+  </div>
+</footer>
+
+<script src="catalogo-dati.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ==========================================================
+     CONFIGURAZIONE — da compilare
+     ========================================================== */
+
+  // Numero WhatsApp del negozio: formato internazionale, senza "+", spazi o trattini.
+  // Esempio: "393331234567" (39 = Italia, poi il numero).
+  // Se resta vuoto, WhatsApp si apre ma il cliente deve scegliere il destinatario.
+  const WHATSAPP_NUMBER = "393501637310";
+
+  // Indirizzo e-mail del negozio che riceve i messaggi.
+  // Se resta vuoto, il programma di posta si apre senza destinatario.
+  const EMAIL_NEGOZIO = "luneviaarteartigianato@gmail.com";
+
+  // Come inviare l'e-mail:
+  //   "mailto"     = apre il programma di posta del cliente con il messaggio già scritto
+  //   "formsubmit" = invia direttamente dal sito tramite FormSubmit (gratuito;
+  //                  la prima volta devi confermare la tua e-mail). Se l'invio
+  //                  non riesce, si ripiega automaticamente su "mailto".
+  const METODO_EMAIL = "formsubmit";
+
+  /* ========================================================== */
+
+  const modulo = document.getElementById("contact-form");
+  const nota = document.getElementById("form-note");
+
+  const campi = [
+    {
+      input: document.getElementById("name"),
+      errorId: "name-error",
+      valido: function (v) { return v.length >= 2; }
+    },
+    {
+      input: document.getElementById("email"),
+      errorId: "email-error",
+      valido: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+    },
+    {
+      input: document.getElementById("phone"),
+      errorId: "phone-error",
+      valido: function (v) { return /^[+]?[0-9\s().-]{7,20}$/.test(v); }
+    },
+    {
+      input: document.getElementById("message"),
+      errorId: "message-error",
+      valido: function (v) { return v.length >= 10; }
+    }
+  ];
+
+  function controllaCampo(campo) {
+    const ok = campo.valido(campo.input.value.trim());
+
+    campo.input.classList.toggle("ct-invalid", !ok);
+    document.getElementById(campo.errorId).classList.toggle("show", !ok);
+
+    return ok;
+  }
+
+  function controllaTutto() {
+    // map() (e non every()) per mostrare gli errori di tutti i campi insieme
+    return campi.map(controllaCampo).every(Boolean);
+  }
+
+  campi.forEach(function (campo) {
+    campo.input.addEventListener("blur", function () { controllaCampo(campo); });
+
+    campo.input.addEventListener("input", function () {
+      if (campo.input.classList.contains("ct-invalid")) controllaCampo(campo);
+    });
+  });
+
+  function mostraNota(testo, colore) {
+    nota.textContent = testo;
+    nota.style.color = colore;
+  }
+
+  function leggiDati() {
+    return {
+      nome: campi[0].input.value.trim(),
+      email: campi[1].input.value.trim(),
+      telefono: campi[2].input.value.trim(),
+      messaggio: campi[3].input.value.trim()
+    };
+  }
+
+  /* ---------- WhatsApp ---------- */
+
+  function testoWhatsApp(d) {
+    return [
+      "✉️ *Nuovo messaggio — Lunévia*",
+      "",
+      "Nome: " + d.nome,
+      "Email: " + d.email,
+      "Telefono: " + d.telefono,
+      "",
+      "*Messaggio:*",
+      d.messaggio
+    ].join("\n");
+  }
+
+  function inviaWhatsApp() {
+    if (!controllaTutto()) {
+      mostraNota("Controlla le informazioni inserite.", "#A62C32");
+      return;
+    }
+
+    const numero = WHATSAPP_NUMBER.replace(/\D/g, "");
+
+    if (!numero) {
+      console.warn("WHATSAPP_NUMBER è vuoto: inseriscilo in contact.html.");
+    }
+
+    const base = numero ? "https://wa.me/" + numero : "https://wa.me/";
+    const url = base + "?text=" + encodeURIComponent(testoWhatsApp(leggiDati()));
+
+    // Se il browser blocca la nuova scheda, apre WhatsApp nella stessa scheda.
+    const aperta = window.open(url, "_blank");
+    if (!aperta) window.location.href = url;
+
+    mostraNota(
+      "WhatsApp si è aperto con il tuo messaggio. Premi «Invia» per completare.",
+      "var(--green, #173F35)"
+    );
+  }
+
+  /* ---------- E-mail ---------- */
+
+  function oggettoEmail(d) {
+    return "Messaggio dal sito Lunévia — " + d.nome;
+  }
+
+  function corpoEmail(d) {
+    return [
+      "Nome: " + d.nome,
+      "Email: " + d.email,
+      "Telefono: " + d.telefono,
+      "",
+      "Messaggio:",
+      d.messaggio
+    ].join("\n");
+  }
+
+  function apriProgrammaPosta(d) {
+    if (!EMAIL_NEGOZIO) {
+      console.warn("EMAIL_NEGOZIO è vuoto: inseriscilo in contact.html.");
+    }
+
+    // Le righe vanno separate con \r\n nei link mailto.
+    const url = "mailto:" + EMAIL_NEGOZIO +
+      "?subject=" + encodeURIComponent(oggettoEmail(d)) +
+      "&body=" + encodeURIComponent(corpoEmail(d).replace(/\n/g, "\r\n"));
+
+    window.location.href = url;
+
+    mostraNota(
+      "Il tuo programma di posta si è aperto con il messaggio già scritto. Premi «Invia» per completare.",
+      "var(--green, #173F35)"
+    );
+  }
+
+  function inviaEmail() {
+    if (!controllaTutto()) {
+      mostraNota("Controlla le informazioni inserite.", "#A62C32");
+      return;
+    }
+
+    const d = leggiDati();
+    const emailValida = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(EMAIL_NEGOZIO);
+
+    if (METODO_EMAIL === "formsubmit" && emailValida) {
+      mostraNota("Invio in corso…", "var(--green, #173F35)");
+
+      fetch("https://formsubmit.co/ajax/" + EMAIL_NEGOZIO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name: d.nome,
+          email: d.email,
+          phone: d.telefono,
+          message: d.messaggio,
+          _replyto: d.email,
+          _subject: oggettoEmail(d),
+          _template: "table",
+          _captcha: "false"
+        })
+      })
+        .then(function (risposta) {
+          if (!risposta.ok) throw new Error("HTTP " + risposta.status);
+
+          modulo.reset();
+          mostraNota("✓ Messaggio inviato. Grazie, ti risponderemo presto!", "var(--green, #173F35)");
+        })
+        .catch(function (errore) {
+          console.warn("Invio diretto non riuscito, apro il programma di posta:", errore);
+          apriProgrammaPosta(d);
+        });
+
+      return;
+    }
+
+    apriProgrammaPosta(d);
+  }
+
+  document.getElementById("send-whatsapp").addEventListener("click", inviaWhatsApp);
+  document.getElementById("send-mail").addEventListener("click", inviaEmail);
+
+  // Il tasto Invio non deve inviare il modulo: si sceglie uno dei due pulsanti.
+  modulo.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+
+    if (controllaTutto()) {
+      mostraNota("Scegli come inviare il messaggio: WhatsApp oppure e-mail.", "var(--green, #173F35)");
+    } else {
+      mostraNota("Controlla le informazioni inserite.", "#A62C32");
+    }
+  });
+
+  /* ---------- Contatore del carrello nel menu ---------- */
+
+  function aggiornaCarrello() {
+    try {
+      const chiave = typeof CART_KEY !== "undefined" ? CART_KEY : "lunévia_cart";
+      const dati = JSON.parse(localStorage.getItem(chiave) || "[]");
+      const lista = Array.isArray(dati) ? dati : [];
+      const totale = lista.reduce(function (somma, voce) {
+        return somma + Math.max(0, Math.floor(Number(voce && (voce.quantity || voce.quantita)) || 0));
+      }, 0);
+
+      document.querySelectorAll(".cart-count").forEach(function (badge) {
+        badge.textContent = totale;
+      });
+    } catch (errore) { /* carrello non leggibile */ }
+  }
+
+  aggiornaCarrello();
+  window.addEventListener("load", aggiornaCarrello);
+})();
+</script>
+<script src="script.js"></script>
+</body>
+</html>

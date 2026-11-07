@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+    <meta charset="UTF-8">
+    <script src="geo-blocco.js"></script>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Carrello — Lunévia</title>
+
+    <link
+        rel="stylesheet"
+        href="styles.css">
+
+    <style>
+        /* Carrello (classi "pn-" per non entrare in conflitto con styles.css) */
+        .pn-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 32px;
+            align-items: start;
+            padding: 10px 0 70px;
+        }
+
+        .pn-lines {
+            display: grid;
+            gap: 14px;
+        }
+
+        .pn-line {
+            display: grid;
+            grid-template-columns: 110px minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid var(--border, #E8E2D7);
+            border-radius: 6px;
+        }
+
+        .pn-thumb {
+            display: grid;
+            place-items: center;
+            width: 110px;
+            height: 110px;
+            overflow: hidden;
+            background: #EDE8DE;
+            border-radius: 5px;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+        }
+
+        .pn-thumb img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pn-name {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--green, #173F35);
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1.3;
+            text-decoration: none;
+        }
+
+        a.pn-name:hover {
+            color: var(--gold, #B58B53);
+        }
+
+        .pn-unit {
+            color: var(--muted, #777D76);
+            font-size: 12px;
+        }
+
+        .pn-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pn-qty {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 4px 10px;
+            background: #fff;
+            border: 1px solid var(--border, #E8E2D7);
+        }
+
+        .pn-qty button {
+            width: 26px;
+            height: 26px;
+            border: 0;
+            background: transparent;
+            color: var(--green, #173F35);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .pn-qty button:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+        }
+
+        .pn-qty strong {
+            min-width: 18px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .pn-remove {
+            border: 0;
+            background: transparent;
+            color: var(--muted, #777D76);
+            font-size: 12px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .pn-remove:hover {
+            color: #B74444;
+        }
+
+        .pn-line-total {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--green, #173F35);
+            white-space: nowrap;
+        }
+
+        .pn-summary {
+            position: sticky;
+            top: 100px;
+            padding: 24px;
+            background: #fff;
+            border: 1px solid var(--border, #E8E2D7);
+            border-radius: 6px;
+        }
+
+        .pn-summary h2 {
+            margin-bottom: 16px;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+        }
+
+        .pn-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border, #E8E2D7);
+            font-size: 13px;
+        }
+
+        .pn-row span:first-child {
+            color: var(--muted, #777D76);
+        }
+
+        .pn-row.pn-total {
+            border-bottom: 0;
+            padding-top: 16px;
+            font-size: 16px;
+        }
+
+        .pn-row.pn-total strong {
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+        }
+
+        .pn-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .pn-btn {
+            display: block;
+            padding: 14px 18px;
+            border: 1px solid var(--green, #173F35);
+            background: var(--green, #173F35);
+            color: #fff;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .pn-btn:hover {
+            opacity: .9;
+        }
+
+        .pn-btn.pn-light {
+            background: transparent;
+            color: var(--green, #173F35);
+        }
+
+        .pn-clear {
+            margin-top: 4px;
+            border: 0;
+            background: transparent;
+            color: var(--muted, #777D76);
+            font-size: 12px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .pn-note {
+            margin-top: 14px;
+            color: var(--muted, #777D76);
+            font-size: 11px;
+        }
+
+        .pn-empty {
+            margin: 10px 0 70px;
+            padding: 55px 25px;
+            background: #fff;
+            border: 1px solid var(--border, #E8E2D7);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .pn-empty h2 {
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+        }
+
+        .pn-empty p {
+            margin: 12px 0 22px;
+            color: var(--muted, #777D76);
+            font-size: 13px;
+        }
+
+        .pn-empty .pn-btn {
+            display: inline-block;
+        }
+
+        @media (max-width: 850px) {
+            .pn-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .pn-summary {
+                position: static;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .pn-line {
+                grid-template-columns: 80px minmax(0, 1fr);
+            }
+
+            .pn-thumb {
+                width: 80px;
+                height: 80px;
+            }
+
+            .pn-line-total {
+                grid-column: 2;
+                font-size: 20px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+<header class="site-header">
+
+    <div class="wrap header-inner">
+
+        <a
+            href="index.html"
+            class="logo"
+            aria-label="Lunévia, home">
+
+            <span class="logo-mark">L</span>
+
+            <span class="logo-name">
+                Lunévia
+            </span>
+
+            <small>
+                Collezione italiana
+            </small>
+
+        </a>
+
+
+        <button
+            class="nav-toggle"
+            aria-label="Apri il menu"
+            aria-expanded="false"
+            type="button">
+
+            <span></span>
+
+        </button>
+
+
+        <nav class="main-nav" id="main-nav">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="produits.html">
+                Collezione
+            </a>
+
+            <a href="preferiti.html">
+                Preferiti
+            </a>
+
+            <a href="apropos.html">
+                La nostra storia
+            </a>
+
+            <a href="contact.html">
+                Contatti
+            </a>
+
+            <a
+                href="panier.html"
+                class="nav-cta"
+                aria-current="page">
+
+                Carrello
+                <span id="cart-count">0</span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="page-hero">
+
+    <div class="wrap">
+
+        <p class="eyebrow">
+            <span></span>
+            Lunévia
+        </p>
+
+        <h1>
+            Il tuo <em>carrello</em>
+        </h1>
+
+        <p>
+            Controlla le tue creazioni selezionate
+            prima di procedere con l'ordine.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="cart-section">
+
+    <div class="wrap">
+
+        <div id="cart-container" aria-live="polite">
+
+            <!-- Il carrello viene generato automaticamente dallo script in fondo alla pagina -->
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="wrap">
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 Lunévia
+            </span>
+
+            <a href="index.html">
+                Torna alla boutique
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="catalogo-dati.js"></script>
+<script src="script.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    // Stessa chiave del carrello usata da produits.html e prodotto.html (vedi catalogo-dati.js)
+    const KEY = typeof CART_KEY !== "undefined" ? CART_KEY : "lunévia_cart";
+    const HAS_CATALOG = typeof trovaProdotto === "function";
+
+    const container = document.getElementById("cart-container");
+    const countBadge = document.getElementById("cart-count");
+
+    const money = new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR"
+    });
+
+    /* ---------- Lettura / scrittura del carrello ---------- */
+
+    function normalize(item) {
+        if (!item || typeof item !== "object") return null;
+
+        const id = String(item.id || item.productId || item.name || item.nome || "");
+        if (!id) return null;
+
+        // Il catalogo è la fonte principale: nome, prezzo e immagine sono sempre aggiornati.
+        const product = HAS_CATALOG ? trovaProdotto(id) : null;
+
+        const quantity = Math.max(1, Math.min(99,
+            Math.floor(Number(item.quantity || item.quantita) || 1)));
+
+        return {
+            id: id,
+            name: product ? product.titolo : (item.name || item.nome || "Prodotto"),
+            price: product ? product.prezzo : (Number(item.price || item.prezzo) || 0),
+            image: product ? product.immagine : (item.image || item.immagine || ""),
+            quantity: quantity,
+            inCatalog: Boolean(product)
+        };
+    }
+
+    function readCart() {
+        try {
+            const raw = localStorage.getItem(KEY);
+            const data = raw ? JSON.parse(raw) : [];
+            const list = Array.isArray(data)
+                ? data
+                : (data && Array.isArray(data.items) ? data.items : []);
+
+            // Unisce eventuali righe duplicate dello stesso prodotto.
+            const merged = [];
+            list.map(normalize).filter(Boolean).forEach(item => {
+                const existing = merged.find(row => row.id === item.id);
+                if (existing) {
+                    existing.quantity = Math.min(99, existing.quantity + item.quantity);
+                } else {
+                    merged.push(item);
+                }
+            });
+
+            return merged;
+        } catch (error) {
+            console.warn("Carrello illeggibile:", error);
+            return [];
+        }
+    }
+
+    function writeCart(items) {
+        try {
+            localStorage.setItem(KEY, JSON.stringify(items.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                image: item.image,
+                quantity: item.quantity
+            }))));
+        } catch (error) {
+            console.warn("Impossibile salvare il carrello:", error);
+        }
+    }
+
+    /* ---------- Piccolo helper per creare elementi ---------- */
+
+    function make(tag, props, ...children) {
+        const element = document.createElement(tag);
+
+        Object.keys(props || {}).forEach(name => {
+            if (name === "onClick") element.addEventListener("click", props[name]);
+            else if (name === "text") element.textContent = props[name];
+            else if (name === "class") element.className = props[name];
+            else element.setAttribute(name, props[name]);
+        });
+
+        children.forEach(child => {
+            if (child) element.append(child);
+        });
+
+        return element;
+    }
+
+    /* ---------- Azioni ---------- */
+
+    function changeQuantity(id, amount) {
+        const items = readCart();
+        const item = items.find(row => row.id === id);
+        if (!item) return;
+
+        item.quantity = Math.max(1, Math.min(99, item.quantity + amount));
+        writeCart(items);
+        render();
+    }
+
+    function removeItem(id) {
+        writeCart(readCart().filter(row => row.id !== id));
+        render();
+    }
+
+    function clearCart() {
+        if (!window.confirm("Vuoi svuotare il carrello?")) return;
+        writeCart([]);
+        render();
+    }
+
+    /* ---------- Visualizzazione ---------- */
+
+    function updateBadge(items) {
+        if (!countBadge) return;
+        countBadge.textContent = items.reduce((sum, item) => sum + item.quantity, 0);
+    }
+
+    function buildLine(item) {
+        const thumb = make("div", { class: "pn-thumb" });
+
+        if (item.image) {
+            const img = document.createElement("img");
+            img.alt = item.name;
+            img.loading = "lazy";
+            img.addEventListener("error", () => {
+                img.remove();
+                thumb.textContent = "L";
+            });
+            img.src = item.image;
+            thumb.appendChild(img);
+        } else {
+            thumb.textContent = "L";
+        }
+
+        const name = item.inCatalog
+            ? make("a", {
+                class: "pn-name",
+                href: "prodotto.html?id=" + encodeURIComponent(item.id),
+                text: item.name
+            })
+            : make("span", { class: "pn-name", text: item.name });
+
+        const minus = make("button", {
+            type: "button",
+            "aria-label": "Diminuisci quantità",
+            text: "−",
+            onClick: () => changeQuantity(item.id, -1)
+        });
+        if (item.quantity <= 1) minus.disabled = true;
+
+        const plus = make("button", {
+            type: "button",
+            "aria-label": "Aumenta quantità",
+            text: "+",
+            onClick: () => changeQuantity(item.id, 1)
+        });
+        if (item.quantity >= 99) plus.disabled = true;
+
+        const quantity = make("div", { class: "pn-qty" },
+            minus,
+            make("strong", { text: String(item.quantity) }),
+            plus
+        );
+
+        const remove = make("button", {
+            type: "button",
+            class: "pn-remove",
+            text: "Rimuovi",
+            onClick: () => removeItem(item.id)
+        });
+
+        return make("article", { class: "pn-line" },
+            thumb,
+            make("div", {},
+                name,
+                make("div", { class: "pn-unit", text: money.format(item.price) + " cad." }),
+                make("div", { class: "pn-controls" }, quantity, remove)
+            ),
+            make("div", { class: "pn-line-total", text: money.format(item.price * item.quantity) })
+        );
+    }
+
+    function buildSummary(items) {
+        const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const pieces = items.reduce((sum, item) => sum + item.quantity, 0);
+
+        return make("aside", { class: "pn-summary" },
+            make("h2", { text: "Riepilogo" }),
+            make("div", { class: "pn-row" },
+                make("span", { text: "Articoli" }),
+                make("span", { text: String(pieces) })
+            ),
+            make("div", { class: "pn-row" },
+                make("span", { text: "Subtotale" }),
+                make("span", { text: money.format(subtotal) })
+            ),
+            make("div", { class: "pn-row" },
+                make("span", { text: "Consegna" }),
+                make("span", { text: "Da confermare" })
+            ),
+            make("div", { class: "pn-row pn-total" },
+                make("span", { text: "Totale" }),
+                make("strong", { text: money.format(subtotal) })
+            ),
+            make("div", { class: "pn-actions" },
+                make("a", { class: "pn-btn", href: "pagamento.html", text: "Procedi all'ordine" }),
+                make("a", { class: "pn-btn pn-light", href: "produits.html", text: "Continua gli acquisti" }),
+                make("button", { type: "button", class: "pn-clear", text: "Svuota il carrello", onClick: clearCart })
+            ),
+            make("p", {
+                class: "pn-note",
+                text: "Le modalità e i costi di consegna vengono confermati prima dell'ordine."
+            })
+        );
+    }
+
+    function render() {
+        if (!container) return;
+
+        const items = readCart();
+        updateBadge(items);
+
+        if (items.length === 0) {
+            container.replaceChildren(
+                make("div", { class: "pn-empty" },
+                    make("h2", { text: "Il tuo carrello è vuoto" }),
+                    make("p", { text: "Scopri la collezione e aggiungi i prodotti che ti piacciono." }),
+                    make("a", { class: "pn-btn", href: "produits.html", text: "Vai alla collezione" })
+                )
+            );
+            return;
+        }
+
+        container.replaceChildren(
+            make("div", { class: "pn-layout" },
+                make("div", { class: "pn-lines" }, ...items.map(buildLine)),
+                buildSummary(items)
+            )
+        );
+    }
+
+    render();
+
+    // script.js può aver scritto nel contenitore o nel contatore: il carrello resta quello corretto.
+    document.addEventListener("DOMContentLoaded", render);
+    window.addEventListener("load", () => updateBadge(readCart()));
+
+    // Aggiorna il carrello se viene modificato in un'altra scheda.
+    window.addEventListener("storage", event => {
+        if (event.key === KEY) render();
+    });
+})();
+</script>
+
+</body>
+
+</html>

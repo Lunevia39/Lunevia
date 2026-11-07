@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+    <meta charset="UTF-8">
+    <script src="geo-blocco.js"></script>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color"
+          content="#173F35">
+
+    <title>Preferiti — Lunévia</title>
+
+    <meta name="description"
+          content="I prodotti preferiti che hai salvato su Lunévia.">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="styles.css">
+
+    <style>
+        /* Elenco dei preferiti (classi "fv-" per non entrare in conflitto con styles.css) */
+        .fv-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            color: var(--muted, #777D76);
+            font-size: 13px;
+        }
+
+        .fv-clear {
+            border: 0;
+            background: transparent;
+            color: var(--muted, #777D76);
+            font: inherit;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .fv-clear:hover {
+            color: #B74444;
+        }
+
+        .fv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+            padding-bottom: 80px;
+        }
+
+        .fv-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--line, #E8E2D7);
+            border-radius: 6px;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .fv-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold, #B58B53);
+            box-shadow: 0 10px 28px rgba(23, 63, 53, .08);
+        }
+
+        .fv-visual {
+            position: relative;
+            display: grid;
+            place-items: center;
+            height: 230px;
+            overflow: hidden;
+            background: #EDE8DE;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 54px;
+            text-decoration: none;
+        }
+
+        .fv-visual img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .4s ease;
+        }
+
+        .fv-card:hover .fv-visual img {
+            transform: scale(1.04);
+        }
+
+        .fv-heart {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 3;
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .92);
+            color: #B74444;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .12);
+            transition: transform .2s ease;
+        }
+
+        .fv-heart:hover {
+            transform: scale(1.1);
+        }
+
+        .fv-body {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .fv-kicker {
+            margin-bottom: 6px;
+            color: var(--gold, #B58B53);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .fv-body h3 {
+            margin-bottom: 8px;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            line-height: 1.15;
+        }
+
+        .fv-body h3 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .fv-body h3 a:hover {
+            color: var(--gold, #B58B53);
+        }
+
+        .fv-desc {
+            flex: 1;
+            margin-bottom: 14px;
+            color: #626B64;
+            font-size: 13px;
+        }
+
+        .fv-price {
+            margin-bottom: 14px;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .fv-add {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 18px;
+            border: 1px solid var(--green, #173F35);
+            background: var(--green, #173F35);
+            color: #fff;
+            font: 700 12px 'Manrope', sans-serif;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+
+        .fv-add:hover {
+            background: var(--green-light, #285C4D);
+        }
+
+        .fv-empty {
+            margin: 10px 0 80px;
+            padding: 60px 25px;
+            background: #fff;
+            border: 1px solid var(--line, #E8E2D7);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .fv-empty-icon {
+            color: var(--gold, #B58B53);
+            font-size: 42px;
+            line-height: 1;
+        }
+
+        .fv-empty h2 {
+            margin-top: 10px;
+            color: var(--green, #173F35);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+        }
+
+        .fv-empty p {
+            max-width: 440px;
+            margin: 12px auto 24px;
+            color: var(--muted, #777D76);
+            font-size: 14px;
+        }
+
+        .fv-empty a {
+            display: inline-block;
+            padding: 14px 24px;
+            background: var(--green, #173F35);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .fv-toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 200;
+            max-width: calc(100% - 40px);
+            padding: 14px 20px;
+            background: var(--green, #173F35);
+            color: #fff;
+            font-size: 13px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, .2);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: .25s;
+        }
+
+        .fv-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 520px) {
+            .fv-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fv-visual {
+                height: 260px;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+<a href="#main"
+   class="skip-link">
+    Vai al contenuto
+</a>
+
+
+<!-- ================= HEADER ================= -->
+
+<header class="site-header">
+
+    <div class="wrap header-inner">
+
+        <a href="index.html"
+           class="logo"
+           aria-label="Lunévia, home">
+
+            <span class="logo-mark">
+                L
+            </span>
+
+            <span class="logo-name">
+                Lunévia
+            </span>
+
+            <small>
+                Maison, stile e innovazione
+            </small>
+
+        </a>
+
+
+        <button
+            class="nav-toggle"
+            aria-expanded="false"
+            aria-controls="main-nav"
+            aria-label="Apri il menu"
+            type="button">
+
+            <span></span>
+
+        </button>
+
+
+        <nav class="main-nav"
+             id="main-nav">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="produits.html">
+                Collezione
+            </a>
+
+            <a href="preferiti.html"
+               aria-current="page">
+                Preferiti
+            </a>
+
+            <a href="apropos.html">
+                La nostra storia
+            </a>
+
+            <a href="contact.html">
+                Contatti
+            </a>
+
+            <a class="nav-cta cart-link"
+               href="panier.html">
+
+                Carrello
+
+                <span class="cart-count"
+                      id="cart-count">
+                    0
+                </span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main id="main">
+
+
+    <!-- INTRO -->
+
+    <section class="favorites-hero">
+
+        <div class="wrap">
+
+            <p class="eyebrow">
+                La tua selezione
+            </p>
+
+            <h1>
+                I tuoi <em>preferiti</em>
+            </h1>
+
+            <p>
+                I prodotti che hai scelto di conservare,
+                pronti per quando vorrai ordinarli.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- PREFERITI -->
+
+    <section class="favorites-section">
+
+        <div class="wrap">
+
+            <div id="favorites-container" aria-live="polite">
+
+                <!-- I prodotti preferiti vengono inseriti
+                     automaticamente dallo script in fondo alla pagina -->
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+    <div class="wrap">
+
+        <div class="footer-top">
+
+
+            <div>
+
+                <a href="index.html"
+                   class="footer-logo">
+
+                    Lunévia
+
+                </a>
+
+                <p>
+                    Una selezione di oggetti per la casa,
+                    <br>
+                    lo stile e la vita quotidiana.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h4>
+                    Esplora
+                </h4>
+
+                <a href="produits.html">
+                    Collezione
+                </a>
+
+                <a href="preferiti.html">
+                    Preferiti
+                </a>
+
+                <a href="apropos.html">
+                    La nostra storia
+                </a>
+
+                <a href="contact.html">
+                    Contatti
+                </a>
+
+            </div>
+
+
+            <div>
+
+                <h4>
+                    Servizio clienti
+                </h4>
+
+                <a href="contact.html">
+                    Domande e assistenza
+                </a>
+
+                <a href="contact.html">
+                    Informazioni sugli ordini
+                </a>
+
+                <a href="contact.html">
+                    Collaborazioni
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 Lunévia
+            </span>
+
+            <span>
+                Maison, stile e innovazione
+            </span>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<div class="fv-toast" id="fv-toast" role="status" aria-live="polite"></div>
+
+
+<script src="catalogo-dati.js"></script>
+<script src="script.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    // Stessa chiave del carrello usata da tutte le pagine (vedi catalogo-dati.js)
+    const CART = typeof CART_KEY !== "undefined" ? CART_KEY : "lunévia_cart";
+
+    // Chiavi dei preferiti: le stesse di prodotto.html (la prima è quella usata per salvare).
+    const FAVORITES_KEYS = ["luneviaFavorites", "preferiti", "favorites"];
+
+    const HAS_CATALOG = typeof trovaProdotto === "function";
+
+    const container = document.getElementById("favorites-container");
+    const toast = document.getElementById("fv-toast");
+
+    const money = new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
+
+    let toastTimer;
+
+    function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 2600);
+    }
+
+    /* ---------- Lettura / scrittura ---------- */
+
+    function readStoredArray(keys) {
+        for (let i = 0; i < keys.length; i++) {
+            try {
+                const value = localStorage.getItem(keys[i]);
+
+                if (value) {
+                    const parsed = JSON.parse(value);
+                    if (Array.isArray(parsed)) return parsed;
+                    if (parsed && Array.isArray(parsed.items)) return parsed.items;
+                }
+            } catch (error) {
+                console.warn("Impossibile leggere:", keys[i]);
+            }
+        }
+
+        return [];
+    }
+
+    function itemId(item) {
+        if (item && typeof item === "object") {
+            return String(item.id || item.productId || item.name || item.nome || "");
+        }
+
+        return String(item || "");
+    }
+
+    function readFavorites() {
+        const seen = {};
+        const list = [];
+
+        readStoredArray(FAVORITES_KEYS).forEach(function (item) {
+            const id = itemId(item);
+            if (!id || seen[id]) return;
+            seen[id] = true;
+
+            // Il catalogo è la fonte principale: nome, prezzo e immagine sono sempre aggiornati.
+            const product = HAS_CATALOG ? trovaProdotto(id) : null;
+            const stored = item && typeof item === "object" ? item : {};
+
+            list.push({
+                id: id,
+                name: product ? product.titolo : (stored.name || stored.nome || id),
+                price: product ? product.prezzo : (Number(stored.price || stored.prezzo) || 0),
+                image: product ? product.immagine : (stored.image || stored.immagine || ""),
+                category: product ? product.nomeCategoria : "",
+                description: product ? product.descrizione : "",
+                inCatalog: Boolean(product)
+            });
+        });
+
+        return list;
+    }
+
+    function writeFavorites(list) {
+        try {
+            localStorage.setItem(FAVORITES_KEYS[0], JSON.stringify(list.map(function (item) {
+                return {
+                    id: item.id,
+                    name: item.name,
+                    nome: item.name,
+                    price: item.price,
+                    image: item.image
+                };
+            })));
+        } catch (error) {
+            console.warn("Impossibile salvare i preferiti:", error);
+        }
+    }
+
+    function readCart() {
+        try {
+            const data = JSON.parse(localStorage.getItem(CART) || "[]");
+            if (Array.isArray(data)) return data;
+            if (data && Array.isArray(data.items)) return data.items;
+        } catch (error) {
+            console.warn("Carrello illeggibile:", error);
+        }
+
+        return [];
+    }
+
+    function updateCartCount() {
+        const total = readCart().reduce(function (sum, item) {
+            return sum + Math.max(0, Math.floor(Number(item && (item.quantity || item.quantita)) || 0));
+        }, 0);
+
+        document.querySelectorAll(".cart-count").forEach(function (badge) {
+            badge.textContent = total;
+        });
+    }
+
+    /* ---------- Azioni ---------- */
+
+    function addToCart(product) {
+        const cart = readCart();
+
+        const existing = cart.find(function (item) {
+            return itemId(item) === product.id;
+        });
+
+        if (existing) {
+            existing.quantity = Math.min(99, Math.floor(Number(existing.quantity || existing.quantita) || 0) + 1);
+        } else {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+                quantity: 1
+            });
+        }
+
+        try {
+            localStorage.setItem(CART, JSON.stringify(cart));
+        } catch (error) {
+            console.warn("Impossibile salvare il carrello:", error);
+        }
+
+        updateCartCount();
+        showToast("Prodotto aggiunto al carrello.");
+    }
+
+    function removeFavorite(id) {
+        writeFavorites(readFavorites().filter(function (item) { return item.id !== id; }));
+        render();
+        showToast("Prodotto rimosso dai preferiti.");
+    }
+
+    function clearFavorites() {
+        if (!window.confirm("Vuoi rimuovere tutti i preferiti?")) return;
+
+        writeFavorites([]);
+        render();
+    }
+
+    /* ---------- Visualizzazione ---------- */
+
+    function make(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    }
+
+    function buildCard(product) {
+        const card = make("article", "fv-card");
+        const href = "prodotto.html?id=" + encodeURIComponent(product.id);
+
+        // Immagine
+        const visual = product.inCatalog ? make("a", "fv-visual") : make("div", "fv-visual");
+        if (product.inCatalog) {
+            visual.href = href;
+            visual.setAttribute("aria-label", "Apri " + product.name);
+        }
+
+        const letter = make("span", "", "L");
+        visual.appendChild(letter);
+
+        if (product.image) {
+            const img = document.createElement("img");
+            img.alt = product.name;
+            img.loading = "lazy";
+            img.addEventListener("load", function () { letter.remove(); });
+            img.addEventListener("error", function () { img.remove(); });
+            img.src = product.image;
+            visual.appendChild(img);
+        }
+
+        // Cuore: rimuove dai preferiti
+        const heart = make("button", "fv-heart", "♥");
+        heart.type = "button";
+        heart.setAttribute("aria-label", "Rimuovi dai preferiti");
+        heart.title = "Rimuovi dai preferiti";
+        heart.addEventListener("click", function () { removeFavorite(product.id); });
+
+        // Testi
+        const body = make("div", "fv-body");
+
+        if (product.category) body.appendChild(make("p", "fv-kicker", product.category));
+
+        const title = make("h3");
+        if (product.inCatalog) {
+            const link = make("a", "", product.name);
+            link.href = href;
+            title.appendChild(link);
+        } else {
+            title.textContent = product.name;
+        }
+        body.appendChild(title);
+
+        if (product.description) body.appendChild(make("p", "fv-desc", product.description));
+        else body.appendChild(make("p", "fv-desc", ""));
+
+        body.appendChild(make("div", "fv-price", money.format(product.price)));
+
+        const add = make("button", "fv-add");
+        add.type = "button";
+        add.append(make("span", "", "Aggiungi al carrello"), make("span", "", "→"));
+        add.addEventListener("click", function () { addToCart(product); });
+        body.appendChild(add);
+
+        card.append(heart, visual, body);
+
+        return card;
+    }
+
+    function buildEmpty() {
+        const box = make("div", "fv-empty");
+
+        const link = make("a", "", "Scopri la collezione");
+        link.href = "produits.html";
+
+        box.append(
+            make("div", "fv-empty-icon", "♡"),
+            make("h2", "", "Non hai ancora preferiti"),
+            make("p", "", "Apri la scheda di un prodotto e tocca il cuore per salvarlo qui: lo ritroverai quando vorrai."),
+            link
+        );
+
+        return box;
+    }
+
+    function render() {
+        const favorites = readFavorites();
+
+        if (!favorites.length) {
+            container.replaceChildren(buildEmpty());
+            return;
+        }
+
+        const toolbar = make("div", "fv-toolbar");
+        toolbar.appendChild(make("span", "",
+            favorites.length === 1 ? "1 prodotto salvato" : favorites.length + " prodotti salvati"));
+
+        const clear = make("button", "fv-clear", "Rimuovi tutti");
+        clear.type = "button";
+        clear.addEventListener("click", clearFavorites);
+        toolbar.appendChild(clear);
+
+        const grid = make("div", "fv-grid");
+        favorites.forEach(function (product) { grid.appendChild(buildCard(product)); });
+
+        container.replaceChildren(toolbar, grid);
+    }
+
+    render();
+    updateCartCount();
+
+    // script.js può aver modificato il contatore: qui resta quello corretto.
+    window.addEventListener("load", updateCartCount);
+
+    // Aggiorna la pagina se i preferiti o il carrello cambiano in un'altra scheda.
+    window.addEventListener("storage", function (event) {
+        if (FAVORITES_KEYS.indexOf(event.key) !== -1) render();
+        if (event.key === CART) updateCartCount();
+    });
+
+    // Quando si torna indietro dalla scheda prodotto (cache del browser), rilegge i dati.
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            render();
+            updateCartCount();
+        }
+    });
+})();
+</script>
+
+
+</body>
+
+</html>

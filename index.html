@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <script src="geo-blocco.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173F35">
+  <title>Lunévia — Maison, stile e innovazione</title>
+  <meta name="description" content="Lunévia riunisce arredamento, cucina, tecnologia, moda e molto altro: pochi prodotti, scelti con cura per design, qualità e funzionalità.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* ---------- Prodotti in evidenza (collegati al catalogo) ---------- */
+    .product-feature {
+      position: relative;
+    }
+
+    .product-feature .product-visual {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-feature .product-visual img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* metti "contain" per vedere sempre il prodotto intero */
+      object-position: center;
+      transition: transform .4s ease;
+    }
+
+    .product-feature:hover .product-visual img {
+      transform: scale(1.04);
+    }
+
+    .product-feature .product-visual.has-image > span {
+      opacity: 0;
+    }
+
+    /* Tutta la scheda è cliccabile grazie al link del titolo */
+    .product-feature h3 a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .product-feature h3 a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+
+    /* ---------- Categorie ---------- */
+    #categorie[hidden] {
+      display: none;
+    }
+
+    .cat-intro {
+      max-width: 560px;
+      margin-top: 14px;
+      color: var(--muted, #777D76);
+      font-size: 14px;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+      margin-top: 35px;
+    }
+
+    .cat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 24px;
+      background: #fff;
+      border: 1px solid var(--line, #E8E2D7);
+      border-radius: 6px;
+      color: inherit;
+      text-decoration: none;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold, #B58B53);
+      box-shadow: 0 10px 28px rgba(23, 63, 53, .08);
+    }
+
+    .cat-num {
+      color: var(--gold, #B58B53);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    .cat-card h3 {
+      color: var(--green, #173F35);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 25px;
+      line-height: 1.15;
+    }
+
+    .cat-card p {
+      flex: 1;
+      color: var(--muted, #777D76);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .cat-go {
+      margin-top: 8px;
+      color: var(--green, #173F35);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* ---------- Recensioni e commenti ---------- */
+    .rv-section {
+      padding: 85px 0 95px;
+      background: #EFECE4;
+    }
+
+    .rv-open {
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .rv-form-box {
+      margin-top: 28px;
+      padding: 28px;
+      background: #fff;
+      border: 1px solid var(--line, #E8E2D7);
+      border-radius: 6px;
+    }
+
+    .rv-form-box[hidden] {
+      display: none;
+    }
+
+    .rv-form-box h3 {
+      margin-bottom: 18px;
+      color: var(--green, #173F35);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+    }
+
+    .rv-field {
+      margin-bottom: 18px;
+    }
+
+    .rv-field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .rv-field input,
+    .rv-field textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--line, #E8E2D7);
+      background: var(--cream, #F8F6F0);
+      color: inherit;
+      font: 14px 'Manrope', sans-serif;
+    }
+
+    .rv-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .rv-field input.error,
+    .rv-field textarea.error {
+      border-color: #A62C32;
+    }
+
+    .rv-error {
+      display: none;
+      margin-top: 6px;
+      color: #A62C32;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .rv-error.show {
+      display: block;
+    }
+
+    .rv-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted, #777D76);
+      font-size: 11px;
+    }
+
+    .rv-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .rv-actions button {
+      padding: 13px 22px;
+      border: 1px solid var(--green, #173F35);
+      background: var(--green, #173F35);
+      color: #fff;
+      font: 700 13px 'Manrope', sans-serif;
+      cursor: pointer;
+    }
+
+    .rv-actions button.rv-cancel {
+      background: transparent;
+      color: var(--green, #173F35);
+    }
+
+    .rv-message {
+      min-height: 22px;
+      margin-top: 18px;
+      color: var(--green, #173F35);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .rv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .rv-card {
+      display: flex;
+      flex-direction: column;
+      padding: 26px;
+      background: #fff;
+      border: 1px solid var(--line, #E8E2D7);
+      border-radius: 6px;
+    }
+
+    .rv-card::before {
+      content: "“";
+      color: var(--gold, #B58B53);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 54px;
+      line-height: .8;
+    }
+
+    .rv-card p {
+      flex: 1;
+      margin: 8px 0 18px;
+      color: #626B64;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .rv-author {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line, #E8E2D7);
+      color: var(--muted, #777D76);
+      font-size: 12px;
+    }
+
+    .rv-author strong {
+      color: var(--green, #173F35);
+    }
+
+    .rv-card.rv-new {
+      border-color: var(--gold, #B58B53);
+    }
+
+    @media (max-width: 600px) {
+      .rv-section { padding: 60px 0 70px; }
+      .rv-form-box { padding: 20px; }
+      .rv-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Vai al contenuto</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="index.html" class="logo" aria-label="Lunévia, home">
+        <span class="logo-mark">L</span>
+        <span class="logo-name">Lunévia</span>
+        <small>Maison, stile e innovazione</small>
+      </a>
+      <button
+          class="nav-toggle"
+          aria-label="Apri il menu"
+          aria-expanded="false"
+          type="button">
+
+          <span></span>
+
+      </button>
+      <nav class="main-nav" id="main-nav">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="produits.html">Collezione</a>
+        <a href="preferiti.html">Preferiti</a>
+        <a href="apropos.html">La nostra storia</a>
+        <a href="contact.html">Contatti</a>
+        <a class="nav-cta" href="panier.html">Carrello <span class="cart-count" id="cart-count">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-orbit" aria-hidden="true"></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span></span> Maison, stile e innovazione</p>
+          <h1>La casa che hai sempre immaginato,<br><em>scelta con cura.</em></h1>
+          <p class="hero-text">Dal divano che invita a fermarsi alla cucina dove nascono i pranzi più belli: Lunévia riunisce in un unico posto oggetti dal design curato, pensati per rendere ogni giorno più bello e più semplice.</p>
+          <div class="btn-row">
+            <a href="produits.html" class="btn btn-primary">Scopri la collezione <span>↗</span></a>
+            <a href="apropos.html" class="text-link">Conosci Lunévia <span>→</span></a>
+          </div>
+          <div class="hero-trust">
+            <span>✦ Selezione curata</span>
+            <span>✦ Design e funzionalità</span>
+            <span>✦ Dalla casa al tempo libero</span>
+          </div>
+        </div>
+
+        <div class="hero-art reveal" aria-label="Composizione decorativa Lunévia" role="img">
+          <div class="art-ring"></div>
+          <div class="art-vase">◖</div>
+          <div class="art-leaf leaf-one">❧</div>
+          <div class="art-leaf leaf-two">❧</div>
+          <div class="art-label">LUNÉVIA<br><small>ITALIA</small></div>
+          <div class="art-stamp">SCELTO<br>CON CURA</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-band">
+      <div class="wrap intro-grid">
+        <div>
+          <p class="eyebrow">Il nostro principio</p>
+          <h2>Meno rumore,<br><em>più bellezza che funziona.</em></h2>
+        </div>
+        <p>Ogni prodotto entra nella collezione per il suo design, la sua funzionalità e l'attenzione ai dettagli. Non cerchiamo di avere tutto: cerchiamo ciò che merita davvero un posto nella tua vita.</p>
+      </div>
+    </section>
+
+    <section class="section-space" id="categorie" hidden>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Esplora la collezione</p>
+            <h2>Tutto ciò che ti serve,<br><em>in un solo posto.</em></h2>
+            <p class="cat-intro">Arredamento, cucina, tecnologia, moda, benessere e molto altro: scegli una categoria e lasciati ispirare.</p>
+          </div>
+          <a href="produits.html" class="see-all">Vedi tutta la collezione <span>↗</span></a>
+        </div>
+
+        <div class="cat-grid" id="cat-grid"></div>
+      </div>
+    </section>
+
+    <section class="featured section-space">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Una selezione per te</p>
+            <h2>I più amati della collezione</h2>
+          </div>
+          <a href="produits.html" class="see-all">Vedi tutta la collezione <span>↗</span></a>
+        </div>
+
+        <!-- I prodotti vengono inseriti dallo script in fondo alla pagina,
+             leggendo il catalogo (catalogo-dati.js). -->
+        <div class="editorial-products" id="featured-products"></div>
+      </div>
+    </section>
+
+    <section class="values section-space">
+      <div class="wrap">
+        <div class="values-head">
+          <p class="eyebrow">Perché Lunévia</p>
+          <h2>Il valore sta<br><em>nei dettagli.</em></h2>
+        </div>
+        <div class="values-grid">
+          <div class="value"><span>01</span><h3>Design</h3><p>Linee pulite e proporzioni armoniose, per ambienti che raccontano chi sei.</p></div>
+          <div class="value"><span>02</span><h3>Selezione</h3><p>Pochi prodotti, scelti con attenzione invece di un catalogo infinito.</p></div>
+          <div class="value"><span>03</span><h3>Qualità</h3><p>Materiali e finiture pensati per accompagnarti a lungo.</p></div>
+          <div class="value"><span>04</span><h3>Funzionalità</h3><p>Oggetti belli da vedere e semplici da usare, ogni giorno.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-strip">
+      <div class="wrap story-grid">
+        <div class="story-card">
+          <span class="story-number">L</span>
+          <p class="eyebrow">Una piccola storia di stile</p>
+          <h2>La casa è il luogo dove ti senti davvero te stesso.</h2>
+          <p>Lunévia nasce dal desiderio di rendere ogni ambiente più bello e più facile da vivere, con oggetti scelti uno a uno: perché i dettagli giusti cambiano il modo in cui vivi ogni giorno.</p>
+          <a href="apropos.html" class="btn btn-light">Scopri la nostra storia <span>→</span></a>
+        </div>
+        <div class="quote-card">
+          <span>“</span>
+          <blockquote>Un oggetto scelto bene non riempie uno spazio. Lo rende tuo.</blockquote>
+          <cite>— Lunévia</cite>
+        </div>
+      </div>
+    </section>
+
+    <section class="rv-section" id="recensioni" aria-labelledby="rv-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Recensioni</p>
+            <h2 id="rv-title">Cosa dicono<br><em>i nostri clienti.</em></h2>
+          </div>
+          <button type="button" class="btn btn-primary rv-open" id="rv-open"
+                  aria-expanded="false" aria-controls="rv-form-box">
+            Lascia un commento <span>✎</span>
+          </button>
+        </div>
+
+        <div class="rv-form-box" id="rv-form-box" hidden>
+          <h3>Racconta la tua esperienza</h3>
+
+          <form id="rv-form" novalidate>
+            <div class="rv-field">
+              <label for="rv-name">Il tuo nome</label>
+              <input type="text" id="rv-name" maxlength="40" autocomplete="given-name"
+                     placeholder="Come ti chiami?" required>
+              <div class="rv-error" id="rv-name-error">Inserisci il tuo nome (almeno 2 caratteri).</div>
+            </div>
+
+            <div class="rv-field">
+              <label for="rv-text">Il tuo commento</label>
+              <textarea id="rv-text" maxlength="500"
+                        placeholder="Cosa ti è piaciuto di Lunévia?" required></textarea>
+              <div class="rv-meta">
+                <div class="rv-error" id="rv-text-error">Scrivi un commento di almeno 10 caratteri.</div>
+                <span id="rv-chars">0 / 500</span>
+              </div>
+            </div>
+
+            <div class="rv-actions">
+              <button type="submit">Pubblica il commento</button>
+              <button type="button" class="rv-cancel" id="rv-cancel">Annulla</button>
+            </div>
+          </form>
+        </div>
+
+        <p class="rv-message" id="rv-message" role="status" aria-live="polite"></p>
+
+        <div class="rv-grid" id="rv-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-top">
+        <div>
+          <a href="index.html" class="footer-logo">Lunévia</a>
+          <p>Una selezione di oggetti per la casa,<br>lo stile e la vita quotidiana.</p>
+        </div>
+        <div>
+          <h4>Esplora</h4>
+          <a href="produits.html">Collezione</a>
+          <a href="apropos.html">La nostra storia</a>
+          <a href="contact.html">Contatti</a>
+        </div>
+        <div>
+          <h4>Servizio clienti</h4>
+          <a href="contact.html">Domande e assistenza</a>
+          <a href="contact.html">Informazioni sugli ordini</a>
+          <a href="contact.html">Collaborazioni</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Lunévia</span>
+        <span>Maison, stile e innovazione · <a href="contact.html">Contattaci</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="catalogo-dati.js"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    /* ==========================================================
+       1) Contatore del carrello nel menu
+       ========================================================== */
+    function aggiornaCarrello() {
+      try {
+        const chiave = typeof CART_KEY !== "undefined" ? CART_KEY : "lunévia_cart";
+        const dati = JSON.parse(localStorage.getItem(chiave) || "[]");
+        const lista = Array.isArray(dati) ? dati : [];
+        const totale = lista.reduce(function (somma, voce) {
+          return somma + Math.max(0, Math.floor(Number(voce && (voce.quantity || voce.quantita)) || 0));
+        }, 0);
+
+        document.querySelectorAll(".cart-count").forEach(function (badge) {
+          badge.textContent = totale;
+        });
+      } catch (errore) { /* carrello non leggibile */ }
+    }
+
+    aggiornaCarrello();
+    window.addEventListener("load", aggiornaCarrello);
+
+    /* ==========================================================
+       2) Categorie (dal catalogo)
+       ========================================================== */
+    const sezioneCategorie = document.getElementById("categorie");
+    const grigliaCategorie = document.getElementById("cat-grid");
+
+    if (typeof CATEGORIE !== "undefined" && sezioneCategorie && grigliaCategorie) {
+      CATEGORIE.forEach(function (categoria, indice) {
+        const scheda = document.createElement("a");
+        scheda.className = "cat-card";
+        scheda.href = "produits.html#catalogo-" + encodeURIComponent(categoria.id);
+
+        const numero = document.createElement("span");
+        numero.className = "cat-num";
+        numero.textContent = String(indice + 1).padStart(2, "0");
+
+        const titolo = document.createElement("h3");
+        titolo.textContent = categoria.nome;
+
+        const testo = document.createElement("p");
+        testo.textContent = categoria.sottotitolo || "";
+
+        const vai = document.createElement("span");
+        vai.className = "cat-go";
+        vai.textContent = "Scopri →";
+
+        scheda.append(numero, titolo, testo, vai);
+        grigliaCategorie.appendChild(scheda);
+      });
+
+      sezioneCategorie.hidden = false;
+    }
+
+    /* ==========================================================
+       3) Prodotti in evidenza (dal catalogo)
+       ========================================================== */
+    const container = document.getElementById("featured-products");
+
+    if (typeof trovaProdotto === "function" && container) {
+
+      // Per cambiare i prodotti, sostituisci questi id con quelli del catalogo.
+      const SELEZIONE = [
+        { id: "arredamento-01-divano-modulare-di-design", tone: "ceramic", symbol: "◒" },
+        { id: "arredamento-12-lampada-da-terra-elegante", tone: "olive",   symbol: "◉" },
+        { id: "cucina-05-impastatrice-planetaria",        tone: "paper",   symbol: "✦" }
+      ];
+
+      const voci = SELEZIONE.map(function (voce) {
+        return Object.assign({}, voce, { prodotto: trovaProdotto(voce.id) });
+      }).filter(function (voce) { return voce.prodotto; });
+
+      const formatoPrezzo = new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+
+      const schede = voci.map(function (voce, index) {
+        const prodotto = voce.prodotto;
+
+        const scheda = document.createElement("article");
+        scheda.className = "product-feature" + (index === 0 ? " product-feature-large" : "");
+
+        const visual = document.createElement("div");
+        visual.className = "product-visual " + voce.tone;
+
+        if (prodotto.immagine) {
+          const img = document.createElement("img");
+          img.alt = prodotto.titolo;
+          img.loading = index === 0 ? "eager" : "lazy";
+          img.addEventListener("load", function () { visual.classList.add("has-image"); });
+          img.addEventListener("error", function () { img.remove(); }); // resta il simbolo decorativo
+          img.src = prodotto.immagine;
+          visual.appendChild(img);
+        }
+
+        const simbolo = document.createElement("span");
+        simbolo.textContent = voce.symbol;
+
+        const numero = document.createElement("small");
+        numero.textContent = "0" + (index + 1);
+
+        visual.append(simbolo, numero);
+
+        const info = document.createElement("div");
+        info.className = "product-info";
+
+        const categoria = document.createElement("p");
+        categoria.className = "product-kicker";
+        categoria.textContent = prodotto.nomeCategoria;
+
+        const titolo = document.createElement("h3");
+        const link = document.createElement("a");
+        link.href = "prodotto.html?id=" + encodeURIComponent(prodotto.id);
+        link.textContent = prodotto.titolo;
+        titolo.appendChild(link);
+
+        const descrizione = document.createElement("p");
+        descrizione.textContent = prodotto.descrizione;
+
+        const prezzo = document.createElement("strong");
+        prezzo.textContent = formatoPrezzo.format(prodotto.prezzo);
+
+        info.append(categoria, titolo, descrizione, prezzo);
+        scheda.append(visual, info);
+
+        return scheda;
+      });
+
+      container.replaceChildren.apply(container, schede);
+    }
+
+    /* ==========================================================
+       4) Recensioni e commenti dei clienti
+       ========================================================== */
+
+    // Facoltativo: scrivi qui la tua email per RICEVERE ogni nuovo commento
+    // (servizio gratuito FormSubmit; la prima volta devi confermare l'email).
+    // Lascia "" per non inviare nulla.
+    const INVIA_COMMENTI_A_EMAIL = "";
+
+    const CHIAVE_COMMENTI = "luneviaCommentiHome";
+    const MAX_COMMENTI_SALVATI = 30;
+
+    // Recensioni di esempio: sostituiscile con recensioni reali dei tuoi clienti.
+    const RECENSIONI = [
+      { name: "Giulia M.",   city: "Milano",   date: "18 ottobre 2026",
+        text: "Ho trovato tutto quello che cercavo per la casa nuova. Prodotti curati, descrizioni chiare e consegna ben organizzata." },
+      { name: "Marco R.",    city: "Roma",     date: "11 ottobre 2026",
+        text: "Sito semplice da usare e selezione davvero ben fatta. Ho ordinato una lampada e un piccolo elettrodomestico: tutto perfetto." },
+      { name: "Sofia C.",    city: "Lisbona",  date: "3 ottobre 2026",
+        text: "Finalmente un negozio con pochi prodotti, ma scelti bene. L'assistenza mi ha risposto in poche ore." },
+      { name: "Jonas W.",    city: "Berlino",  date: "26 settembre 2026",
+        text: "Design pulito e qualità evidente. Ordinare tramite WhatsApp è stato rapido e cordiale." },
+      { name: "Chiara B.",   city: "Torino",   date: "17 settembre 2026",
+        text: "Mi hanno aiutata a scegliere con calma, senza perdermi tra mille alternative. Lo consiglio a chi cerca qualità." },
+      { name: "Pedro A.",    city: "Porto",    date: "8 settembre 2026",
+        text: "Ottimo rapporto qualità prezzo e imballaggio molto curato. Tornerò sicuramente." }
+    ];
+
+    const griglia = document.getElementById("rv-grid");
+    const bottoneApri = document.getElementById("rv-open");
+    const pannello = document.getElementById("rv-form-box");
+    const modulo = document.getElementById("rv-form");
+    const campoNome = document.getElementById("rv-name");
+    const campoTesto = document.getElementById("rv-text");
+    const contatore = document.getElementById("rv-chars");
+    const messaggio = document.getElementById("rv-message");
+    const annulla = document.getElementById("rv-cancel");
+
+    if (!griglia || !modulo) return;
+
+    function leggiCommenti() {
+      try {
+        const dati = JSON.parse(localStorage.getItem(CHIAVE_COMMENTI) || "[]");
+        if (!Array.isArray(dati)) return [];
+
+        return dati.filter(function (voce) {
+          return voce && typeof voce.name === "string" && typeof voce.text === "string";
+        }).slice(0, MAX_COMMENTI_SALVATI);
+      } catch (errore) {
+        return [];
+      }
+    }
+
+    function salvaCommenti(lista) {
+      try {
+        localStorage.setItem(CHIAVE_COMMENTI, JSON.stringify(lista.slice(0, MAX_COMMENTI_SALVATI)));
+      } catch (errore) {
+        console.warn("Impossibile salvare il commento:", errore);
+      }
+    }
+
+    function creaScheda(voce, nuovo) {
+      const scheda = document.createElement("article");
+      scheda.className = "rv-card" + (nuovo ? " rv-new" : "");
+
+      const testo = document.createElement("p");
+      testo.textContent = voce.text;
+
+      const autore = document.createElement("div");
+      autore.className = "rv-author";
+
+      const nome = document.createElement("strong");
+      nome.textContent = voce.city ? voce.name + " · " + voce.city : voce.name;
+
+      const data = document.createElement("span");
+      data.textContent = voce.date || "";
+
+      autore.append(nome, data);
+      scheda.append(testo, autore);
+
+      return scheda;
+    }
+
+    function disegna() {
+      const miei = leggiCommenti().map(function (voce) { return creaScheda(voce, true); });
+      const esempi = RECENSIONI.map(function (voce) { return creaScheda(voce, false); });
+
+      griglia.replaceChildren.apply(griglia, miei.concat(esempi));
+    }
+
+    function apriPannello(apri) {
+      pannello.hidden = !apri;
+      bottoneApri.setAttribute("aria-expanded", String(apri));
+
+      if (apri) {
+        campoNome.focus();
+      }
+    }
+
+    function mostraErrore(campo, idErrore, mostra) {
+      campo.classList.toggle("error", mostra);
+      document.getElementById(idErrore).classList.toggle("show", mostra);
+    }
+
+    function nomeValido() {
+      return campoNome.value.trim().length >= 2;
+    }
+
+    function testoValido() {
+      return campoTesto.value.trim().length >= 10;
+    }
+
+    bottoneApri.addEventListener("click", function () {
+      apriPannello(pannello.hidden);
+    });
+
+    annulla.addEventListener("click", function () {
+      modulo.reset();
+      contatore.textContent = "0 / 500";
+      mostraErrore(campoNome, "rv-name-error", false);
+      mostraErrore(campoTesto, "rv-text-error", false);
+      apriPannello(false);
+      bottoneApri.focus();
+    });
+
+    campoTesto.addEventListener("input", function () {
+      contatore.textContent = campoTesto.value.length + " / 500";
+      if (campoTesto.classList.contains("error")) mostraErrore(campoTesto, "rv-text-error", !testoValido());
+    });
+
+    campoNome.addEventListener("input", function () {
+      if (campoNome.classList.contains("error")) mostraErrore(campoNome, "rv-name-error", !nomeValido());
+    });
+
+    let ultimoInvio = 0;
+
+    modulo.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+
+      const okNome = nomeValido();
+      const okTesto = testoValido();
+
+      mostraErrore(campoNome, "rv-name-error", !okNome);
+      mostraErrore(campoTesto, "rv-text-error", !okTesto);
+
+      if (!okNome || !okTesto) return;
+
+      // Evita invii ripetuti a raffica
+      if (Date.now() - ultimoInvio < 15000) {
+        messaggio.textContent = "Attendi qualche secondo prima di inviare un altro commento.";
+        return;
+      }
+      ultimoInvio = Date.now();
+
+      const voce = {
+        name: campoNome.value.trim().slice(0, 40),
+        text: campoTesto.value.trim().slice(0, 500),
+        date: new Date().toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
+      };
+
+      const lista = leggiCommenti();
+      lista.unshift(voce);
+      salvaCommenti(lista);
+
+      // Invio facoltativo per email (se configurato)
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(INVIA_COMMENTI_A_EMAIL)) {
+        fetch("https://formsubmit.co/ajax/" + INVIA_COMMENTI_A_EMAIL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            name: voce.name,
+            message: voce.text,
+            _subject: "Nuovo commento — Lunévia",
+            _template: "table",
+            _captcha: "false"
+          })
+        }).catch(function (errore) {
+          console.warn("Invio email non riuscito:", errore);
+        });
+      }
+
+      modulo.reset();
+      contatore.textContent = "0 / 500";
+      apriPannello(false);
+      disegna();
+
+      messaggio.textContent = "Grazie, " + voce.name + "! Il tuo commento è stato pubblicato.";
+      document.getElementById("recensioni").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    disegna();
+  })();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
